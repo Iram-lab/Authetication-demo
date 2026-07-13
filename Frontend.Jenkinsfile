@@ -2,16 +2,16 @@ pipeline {
     agent any
     
     tools {
+        // Enclosed in quotes because it contains a space
         nodejs 'node 24' 
     }
 
     stages {
         stage('Install Dependencies') {
             steps {
-                // 📂 Step into the subfolder to find package.json
                 dir('my-login-app') {
                     echo 'Installing npm packages...'
-                    sh 'npm install'
+                    bat 'npm install'
                 }
             }
         }
@@ -20,7 +20,7 @@ pipeline {
             steps {
                 dir('my-login-app') {
                     echo 'Running linting checks...'
-                    sh 'npm run lint -- --silent' 
+                    bat 'npm run lint -- --silent' 
                 }
             }
         }
@@ -29,7 +29,7 @@ pipeline {
             steps {
                 dir('my-login-app') {
                     echo 'Compiling Angular for Production...'
-                    sh 'npm run build -- --configuration=production'
+                    bat 'npm run build -- --configuration=production'
                 }
             }
         }
@@ -37,11 +37,15 @@ pipeline {
         stage('Deploy to Web Server') {
             steps {
                 dir('my-login-app') {
-                    echo 'Deploying static files to Nginx web root...'
-                    // Cleans out the directory
-                    sh 'sudo rm -rf /var/www/html/my-angular-app/*'
-                    // Copies browser files out of your subfolder's dist structure
-                    sh 'sudo cp -r dist/my-login-app/browser/* /var/www/html/my-angular-app/'
+                    echo 'Deploying static files to web server...'
+                    
+                    // ⚠️ ACTION REQUIRED: Replace C:\nginx\html\my-angular-app with your real Windows server path
+                    
+                    // 1. Cleans out the destination directory safely on Windows
+                    bat 'powershell -Command "if (Test-Path \'C:\\nginx\\html\\my-angular-app\') { Remove-Item -Path \'C:\\nginx\\html\\my-angular-app\\*\' -Recurse -Force }"'
+                    
+                    // 2. Copies browser files using backslashes for the Windows filesystem structure
+                    bat 'powershell -Command "Copy-Item -Path \'dist\\my-login-app\\browser\\*\' -Destination \'C:\\nginx\\html\\my-angular-app\' -Recurse -Force"'
                 }
             }
         }
