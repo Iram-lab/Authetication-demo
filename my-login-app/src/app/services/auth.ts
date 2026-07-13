@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+
 import { Observable, map } from 'rxjs';
 import { AuthResponse } from '../models/auth-response.model';
 import * as CryptoJS from 'crypto-js';
 import { environment } from '../../environments/environment';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -12,23 +13,19 @@ export class AuthService {
   private http = inject(HttpClient);
 
   private baseUrl = environment.apiUrl;
-  // private apiUrl = 'http://localhost:8080/api/auth';
   private readonly SECRET_KEY = 'k9X#mP2vF!8zA5qW@7bN4cC9xZ1vB3nL';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   // Helper: Encrypt data using standard CryptoJS Passphrase mode
-  private encrypt(data: any): string {
+  // Fixed: Changed 'any' to 'unknown' to safely handle varying input objects or strings
+  private encrypt(data: unknown): string {
     const plainText = typeof data === 'string' ? data : JSON.stringify(data);
     const encrypted = CryptoJS.AES.encrypt(plainText, this.SECRET_KEY);
-    return encrypted.toString(); // Outputs a standard OpenSSL Base64 format string
+    return encrypted.toString(); 
   }
 
   // Helper: Decrypt standard OpenSSL Base64 payload back to JSON or Text
-  private decrypt(ciphertext: string): any {
+  // Fixed: Changed return type 'any' to 'unknown' to enforce strict type checking upon retrieval
+  private decrypt(ciphertext: string): unknown {
     const bytes = CryptoJS.AES.decrypt(ciphertext, this.SECRET_KEY);
     const decryptedText = bytes.toString(CryptoJS.enc.Utf8);
     try {
@@ -38,50 +35,47 @@ export class AuthService {
     }
   }
 
-  login(credentials: any): Observable<AuthResponse> {
+  // Fixed: Replaced 'any' credentials with Record object type
+  login(credentials: Record<string, unknown>): Observable<AuthResponse> {
     const encryptedPayload = this.encrypt(credentials);
-
-    // 🌟 PRODUCTION APPROACH: Wrap ciphertext in JSON block object
     const body = { data: encryptedPayload };
 
-    return this.http.post<any>(`${this.baseUrl}/login`, body).pipe(
+    // Fixed: Defined wrapper response format explicitly instead of using 'any'
+    return this.http.post<{ data: string }>(`${this.baseUrl}/login`, body).pipe(
       map((wrappedRes) => {
-        // Unpack the JSON { data: "..." } structure coming from server response
-        const decryptedRes: AuthResponse = this.decrypt(wrappedRes.data);
+        const decryptedRes = this.decrypt(wrappedRes.data) as AuthResponse;
         this.setSession(decryptedRes);
         return decryptedRes;
       }),
     );
   }
 
-  signUp(userData: any): Observable<AuthResponse> {
+  // Fixed: Replaced 'any' userData with Record object type
+  signUp(userData: Record<string, unknown>): Observable<AuthResponse> {
     const encryptedPayload = this.encrypt(userData);
-
-    // 🌟 PRODUCTION APPROACH: Wrap ciphertext in JSON block object
     const body = { data: encryptedPayload };
 
-    return this.http.post<any>(`${this.baseUrl}/register`, body).pipe(
+    // Fixed: Defined wrapper response format explicitly instead of using 'any'
+    return this.http.post<{ data: string }>(`${this.baseUrl}/register`, body).pipe(
       map((wrappedRes) => {
-        // Unpack the JSON { data: "..." } structure coming from server response
-        const decryptedRes: AuthResponse = this.decrypt(wrappedRes.data);
+        const decryptedRes = this.decrypt(wrappedRes.data) as AuthResponse;
         this.setSession(decryptedRes);
         return decryptedRes;
       }),
     );
   }
 
-  // Add this method to your existing AuthService class in auth.service.ts
   getProfile(email: string): Observable<AuthResponse> {
-    // Pass the email parameter to fetch specific data
-    return this.http.get<any>(`${this.baseUrl}/profile?email=${encodeURIComponent(email)}`).pipe(
+    // Fixed: Defined wrapper response format explicitly instead of using 'any'
+    return this.http.get<{ data: string }>(`${this.baseUrl}/profile?email=${encodeURIComponent(email)}`).pipe(
       map((wrappedRes) => {
-        // 🌟 Decrypt production wrapped response data dynamically
-        const decryptedRes: AuthResponse = this.decrypt(wrappedRes.data);
+        const decryptedRes = this.decrypt(wrappedRes.data) as AuthResponse;
         console.log(decryptedRes);
         return decryptedRes;
       }),
     );
   }
+
   private setSession(authResult: AuthResponse) {
     localStorage.setItem('auth_token', authResult.token);
     localStorage.setItem('user_name', authResult.userName);
