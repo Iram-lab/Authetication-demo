@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth';
 
-export const authGuard: CanActivateFn = (_route, _state) => {
+export const authGuard: CanActivateFn = () => { // Fixed: Removed unused _route and _state parameters
   const authService = inject(AuthService);
   const router = inject(Router);
 

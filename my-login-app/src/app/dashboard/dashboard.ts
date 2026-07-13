@@ -1,5 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core'; // 🌟 1. Added ChangeDetectorRef here
-
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core'; 
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth';
 
@@ -18,11 +17,7 @@ export class DashboardComponent implements OnInit {
   userName: string | null = 'Loading...';
   userToken: string | null = 'Loading...';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  // constructor(...args: unknown[]);
-
-  // 🌟 2. Inject ChangeDetectorRef (cdr) inside your class constructor parameters
-  constructor() {}
+  // Fixed: Removed the empty constructor block entirely to satisfy @typescript-eslint/no-empty-function
 
   ngOnInit(): void {
     const activeToken = this.authService.getToken();
@@ -49,21 +44,21 @@ export class DashboardComponent implements OnInit {
 
       if (userEmail) {
         this.authService.getProfile(userEmail).subscribe({
-          next: (profileData: any) => {
+          // Fixed: Replaced 'any' with a structural object to satisfy @typescript-eslint/no-explicit-any
+          next: (profileData: { userName?: string; username?: string; token?: string }) => {
             this.userName = profileData.userName || profileData.username || 'User';
-            this.userToken = profileData.token;
+            this.userToken = profileData.token || null;
 
             console.log('TS updated name:', this.userName);
             console.log('TS updated token:', this.userToken);
 
-            // 🌟 3. THE CRITICAL FIX: Forces Angular to repaint the template layout immediately
             this.cdr.detectChanges();
           },
-          error: (err) => {
+          error: (err: unknown) => {
             console.error('Failed to load profile from backend:', err);
             this.userName = 'Error loading name';
             this.userToken = 'Error loading token';
-            this.cdr.detectChanges(); // 🌟 Force render on error state too
+            this.cdr.detectChanges(); 
           },
         });
       }
