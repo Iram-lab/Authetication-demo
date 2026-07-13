@@ -35,19 +35,21 @@ pipeline {
         }
 
         stage('Deploy to Web Server') {
-            steps {
-                dir('my-login-app') {
-                    echo 'Deploying static files to web server...'
-                    
-                    // ⚠️ ACTION REQUIRED: Replace C:\nginx\html\my-angular-app with your real Windows server path
-                    
-                    // 1. Cleans out the destination directory safely on Windows
-                    bat 'powershell -Command "if (Test-Path \'C:\\nginx\\html\\my-angular-app\') { Remove-Item -Path \'C:\\nginx\\html\\my-angular-app\\*\' -Recurse -Force }"'
-                    
-                    // 2. Copies browser files using backslashes for the Windows filesystem structure
-                    bat 'powershell -Command "Copy-Item -Path \'dist\\my-login-app\\browser\\*\' -Destination \'C:\\nginx\\html\\my-angular-app\' -Recurse -Force"'
-                }
-            }
+    steps {
+        dir('my-login-app') {
+            echo 'Deploying static files to web server...'
+            
+            // 1. Clean existing deployment folder if it exists
+            bat 'powershell -Command "if (Test-Path \'C:\\nginx\\html\\my-angular-app\') { Remove-Item -Path \'C:\\nginx\\html\\my-angular-app\\*\' -Recurse -Force }"'
+            
+            // 2. CRITICAL FIX: Ensure target directory path actually exists
+            bat 'powershell -Command "if (!(Test-Path \'C:\\nginx\\html\\my-angular-app\')) { New-Item -ItemType Directory -Path \'C:\\nginx\\html\\my-angular-app\' -Force }"'
+            
+            // 3. Copy production static bundle files
+            bat 'powershell -Command "Copy-Item -Path \'dist\\my-login-app\\browser\\*\' -Destination \'C:\\nginx\\html\\my-angular-app\' -Recurse -Force"'
         }
+    }
+}
+
     }
 }
