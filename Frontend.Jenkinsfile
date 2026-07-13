@@ -9,7 +9,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 // 📂 Step into the subfolder to find package.json
-                dir('angular-frontend') {
+                dir('my-login-app') {
                     echo 'Installing npm packages...'
                     sh 'npm install'
                 }
@@ -18,7 +18,7 @@ pipeline {
 
         stage('Lint & Test') {
             steps {
-                dir('angular-frontend') {
+                dir('my-login-app') {
                     echo 'Running linting checks...'
                     sh 'npm run lint -- --silent' 
                 }
@@ -27,7 +27,7 @@ pipeline {
 
         stage('Build Production Bundle') {
             steps {
-                dir('angular-frontend') {
+                dir('my-login-app') {
                     echo 'Compiling Angular for Production...'
                     sh 'npm run build -- --configuration=production'
                 }
@@ -36,7 +36,7 @@ pipeline {
 
         stage('Deploy to Web Server') {
             steps {
-                dir('angular-frontend') {
+                dir('my-login-app') {
                     echo 'Deploying static files to Nginx web root...'
                     // Cleans out the directory
                     sh 'sudo rm -rf /var/www/html/my-angular-app/*'
