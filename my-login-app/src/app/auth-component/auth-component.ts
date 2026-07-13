@@ -1,10 +1,8 @@
-// 📄 File: src/app/components/auth/auth.component.ts
-import { Component, inject } from '@angular/core';
-
+import { Component, inject, OnInit } from '@angular/core'; // 1. Ensure OnInit is imported here
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-
-import { Router } from '@angular/router'; // 👈 1. Add this import
+import { Router } from '@angular/router'; 
 import { AuthService } from '../services/auth';
+import { AuthResponse } from '../models/auth-response.model'; // Import your interface model
 
 @Component({
   selector: 'app-auth',
@@ -13,7 +11,8 @@ import { AuthService } from '../services/auth';
   templateUrl: './auth-component.html',
   styleUrls: ['./auth-component.css'],
 })
-export class AuthComponent {
+// 2. Added "implements OnInit" to fix the lifecycle warning
+export class AuthComponent implements OnInit { 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -21,18 +20,14 @@ export class AuthComponent {
   authForm: FormGroup;
   isLoginMode = true;
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  // constructor(...args: unknown[]);
-
-  // 2. Inject Router inside your constructor parameters
   constructor() {
     this.authForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       name: [''],
-
     });
   }
+
   ngOnInit(): void {
     const customPreference = localStorage.getItem('prefer_login_mode');
     if (customPreference === 'false') {
@@ -40,8 +35,9 @@ export class AuthComponent {
       this.authForm.get('name')?.setValidators([Validators.required]);
       this.authForm.get('name')?.updateValueAndValidity();
     }
-    localStorage.removeItem('prefer_login_mode'); // Clear hook state cache
+    localStorage.removeItem('prefer_login_mode'); 
   }
+
   toggleMode() {
     this.isLoginMode = !this.isLoginMode;
     this.authForm.reset();
@@ -61,24 +57,26 @@ export class AuthComponent {
 
     if (this.isLoginMode) {
       this.authService.login(this.authForm.value).subscribe({
-        next: (response: any) => {
+        // 3. Fixed: Changed response type from 'any' to 'AuthResponse'
+        next: (response: AuthResponse) => {
           console.log('Login successful', response);
-          // 3. 🛑 REDIRECT HERE ON SUCCESSFUL LOGIN
           this.router.navigate(['/dashboard']);
         },
-        error: (err: any) => {
+        // 4. Fixed: Changed err type from 'any' to a structural validation block
+        error: (err: { error?: { message?: string } }) => {
           console.error('Login failed', err);
           alert(err.error?.message || 'Login failed. Please check credentials.');
         },
       });
     } else {
       this.authService.signUp(this.authForm.value).subscribe({
-        next: (response: any) => {
+        // 5. Fixed: Changed response type from 'any' to 'AuthResponse'
+        next: (response: AuthResponse) => {
           console.log('Registration successful', response);
-          // 4. 🛑 REDIRECT HERE ON SUCCESSFUL SIGNUP
           this.router.navigate(['/dashboard']);
         },
-        error: (err: any) => {
+        // 6. Fixed: Changed err type from 'any' to a structural validation block
+        error: (err: { error?: { message?: string } }) => {
           console.error('Registration failed', err);
           alert(err.error?.message || 'Registration failed. Try again.');
         },
