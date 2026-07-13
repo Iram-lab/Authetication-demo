@@ -1,12 +1,12 @@
 import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core'; // 🌟 1. Added ChangeDetectorRef here
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css'],
 })
@@ -19,7 +19,7 @@ export class DashboardComponent implements OnInit {
   userToken: string | null = 'Loading...';
 
   /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
+  // constructor(...args: unknown[]);
 
   // 🌟 2. Inject ChangeDetectorRef (cdr) inside your class constructor parameters
   constructor() {}

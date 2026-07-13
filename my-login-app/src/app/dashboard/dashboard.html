@@ -7,22 +7,27 @@
     </div>
     <nav class="nav-menu">
       <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">📈 Overview</a>
-      
+
       <!-- 🔄 Dynamic Side Links based on login state -->
-      <ng-container *ngIf="!isUserLoggedIn()">
+      @if (!isUserLoggedIn()) {
         <button (click)="navigateToAuth(true)" class="nav-link-btn text-left">🔑 Sign In</button>
         <button (click)="navigateToAuth(false)" class="nav-link-btn text-left">📝 Sign Up</button>
-      </ng-container>
+      }
     </nav>
   </aside>
 
   <!-- Main View Presentation Content Window Area -->
   <main class="main-content">
     <header class="top-bar">
-      <h1>Welcome back, <span class="highlight">{{ userName }}</span>!</h1>
-      <button *ngIf="isUserLoggedIn()" (click)="onLogout()" class="logout-btn">🚪 Logout</button>
+      <h1>
+        Welcome back, <span class="highlight">{{ userName }}</span
+        >!
+      </h1>
+      @if (isUserLoggedIn()) {
+        <button (click)="onLogout()" class="logout-btn">🚪 Logout</button>
+      }
     </header>
-    
+
     <div class="content-body">
       <div class="card">
         <h3>Security Overview</h3>
@@ -30,9 +35,18 @@
       </div>
 
       <!-- 🌟 ADDED: Securely renders the active JWT Token string directly on screen -->
-      <div class="card token-card" style="margin-top: 20px;">
+      <div class="card token-card" style="margin-top: 20px">
         <h3>🔑 Active Session Token (JWT)</h3>
-        <div class="token-container" style="background: #f4f6f9; padding: 15px; border-radius: 6px; word-break: break-all; font-family: monospace;">
+        <div
+          class="token-container"
+          style="
+            background: #f4f6f9;
+            padding: 15px;
+            border-radius: 6px;
+            word-break: break-all;
+            font-family: monospace;
+          "
+        >
           <code>{{ userToken }}</code>
         </div>
       </div>

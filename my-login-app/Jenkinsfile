@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+    
+    tools {
+        // Must match the name configured in Jenkins Global Tool Configuration
+        nodejs 'node-24' 
+    }
+
+    stages {
+        stage('Install Dependencies') {
+            steps {
+                echo 'Installing npm packages...'
+                sh 'npm install'
+            }
+        }
+
+        stage('Lint & Test') {
+            steps {
+                echo 'Running linting checks...'
+                sh 'npm run lint -- --silent' // Optional: fails build if code is messy
+            }
+        }
+
+        stage('Build Production Bundle') {
+            steps {
+                echo 'Compiling Angular for Production...'
+                // This generates production files inside the 'dist/' folder
+                sh 'npm run build -- --configuration=production'
+            }
+        }
+
+        stage('Deploy to Web Server') {
+            steps {
+                echo 'Deploying static files to Nginx web root...'
+                // Cleans out the directory
+                sh 'sudo rm -rf /var/www/html/my-angular-app/*'
+                // Copies browser files. (Change 'my-jwt-auth-app' to your project name)
+                sh 'sudo cp -r dist/my-login-app/browser/* /var/www/html/my-angular-app/'
+            }
+    }
+}
+}

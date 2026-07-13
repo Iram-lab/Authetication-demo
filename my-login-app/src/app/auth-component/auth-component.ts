@@ -1,6 +1,6 @@
 // 📄 File: src/app/components/auth/auth.component.ts
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
 import { Router } from '@angular/router'; // 👈 1. Add this import
@@ -9,7 +9,7 @@ import { AuthService } from '../services/auth';
 @Component({
   selector: 'app-auth',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './auth-component.html',
   styleUrls: ['./auth-component.css'],
 })
@@ -22,7 +22,7 @@ export class AuthComponent {
   isLoginMode = true;
 
   /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
+  // constructor(...args: unknown[]);
 
   // 2. Inject Router inside your constructor parameters
   constructor() {
