@@ -1,0 +1,50 @@
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>{{ isLoginMode ? 'Welcome Back' : 'Create Account' }}</h2>
+        <p class="subtitle">{{ isLoginMode ? 'Please sign in to continue' : 'Fill in your details to register' }}</p>
+
+        <!-- Fixed typo: Changed [formGroup]. to [formGroup] -->
+        <form [formGroup]="authForm" (ngSubmit)="onSubmit()">
+
+            <!-- 1. Email Field (Always Displays First) -->
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input id="email" type="email" formControlName="email" placeholder="name@example.com">
+                <span class="error-text" *ngIf="authForm.get('email')?.touched && authForm.get('email')?.invalid">
+                    Enter a valid email address.
+                </span>
+            </div>
+
+            <!-- 2. Password Field (Always Displays Second) -->
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" type="password" formControlName="password" placeholder="••••••••">
+                <span class="error-text" *ngIf="authForm.get('password')?.touched && authForm.get('password')?.invalid">
+                    Password must be at least 6 characters long.
+                </span>
+            </div>
+
+            <!-- 3. Name field: Displays last, and only on Sign Up view -->
+            <div class="form-group" *ngIf="!isLoginMode">
+                <label for="name">Full Name</label>
+                <input id="name" type="text" formControlName="name" placeholder="John Doe">
+                <span class="error-text" *ngIf="authForm.get('name')?.touched && authForm.get('name')?.invalid">
+                    Name is required.
+                </span>
+            </div>
+
+            <!-- Action Button -->
+            <button type="submit" class="submit-btn" [disabled]="authForm.invalid">
+                {{ isLoginMode ? 'Sign In' : 'Sign Up' }}
+            </button>
+        </form>
+
+        <!-- Switch View Link -->
+        <div class="toggle-footer">
+            <span>{{ isLoginMode ? "Don't have an account?" : "Already have an account?" }}</span>
+            <button type="button" class="link-btn" (click)="toggleMode()">
+                {{ isLoginMode ? 'Register here' : 'Login here' }}
+            </button>
+        </div>
+    </div>
+</div>
